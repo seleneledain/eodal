@@ -65,7 +65,7 @@ def query_stac(
     stac_api_io.session.mount("https://", HTTPAdapter(max_retries=retries))
 
     # handle certificate bundle
-    stac_api_io.session.verify = Settings.STAC_API_IO_CA_BUNDLE
+    stac_api_io.session.verify = "/etc/ssl/certs/ca-certificates.crt" #”Settings.STAC_API_IO_CA_BUNDLE
 
     # setup the client
     cat = Client.from_file(Settings.STAC_BACKEND.URL, stac_io=stac_api_io)
