@@ -66,3 +66,5 @@ class STAC_Providers:
             epsg: str = "proj:epsg"
             sun_zenith_angle = "s2:mean_solar_zenith"
             sun_azimuth_angle = "s2:mean_solar_azimuth"
+            #sensor_zenith_angle = TODO
+            #sensor_azimuth_angle = TODO

@@ -208,6 +208,8 @@ def sentinel2(metadata_filters: List[Filter], **kwargs) -> gpd.GeoDataFrame:
             ),
             "sun_azimuth_angle": props[s2.sun_azimuth_angle],
             "sun_zenith_angle": props[s2.sun_zenith_angle],
+            #"sensor_azimuth_angle": props[s2.sensor_azimuth_angle],
+            #"sensor_zenith_angle": props[s2.sensor_zenith_angle],
             "geom": Polygon(scene["geometry"]["coordinates"][0]),
         }
         # get links to actual Sentinel-2 bands
