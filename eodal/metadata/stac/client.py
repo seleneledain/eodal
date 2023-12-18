@@ -65,7 +65,7 @@ def query_stac(
     stac_api_io.session.mount("https://", HTTPAdapter(max_retries=retries))
 
     # handle certificate bundle
-    stac_api_io.session.verify = os.environ.get('CURL_CA_BUNDLE') #"/etc/ssl/certs/ca-certificates.crt" #Settings.STAC_API_IO_CA_BUNDLE #
+    stac_api_io.session.verify = os.environ.get('CURL_CA_BUNDLE')
 
     # setup the client
     cat = Client.from_file(Settings.STAC_BACKEND.URL, stac_io=stac_api_io)
@@ -208,8 +208,6 @@ def sentinel2(metadata_filters: List[Filter], **kwargs) -> gpd.GeoDataFrame:
             ),
             "sun_azimuth_angle": props[s2.sun_azimuth_angle],
             "sun_zenith_angle": props[s2.sun_zenith_angle],
-            #"sensor_azimuth_angle": props[s2.sensor_azimuth_angle],
-            #"sensor_zenith_angle": props[s2.sensor_zenith_angle],
             "geom": Polygon(scene["geometry"]["coordinates"][0]),
         }
         # get links to actual Sentinel-2 bands
