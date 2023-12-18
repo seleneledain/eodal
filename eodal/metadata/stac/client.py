@@ -7,7 +7,7 @@ from __future__ import annotations
 import geopandas as gpd
 import pandas as pd
 import warnings
-
+import os
 from datetime import datetime
 from pystac_client import Client
 from pystac_client.stac_api_io import StacApiIO
@@ -65,7 +65,7 @@ def query_stac(
     stac_api_io.session.mount("https://", HTTPAdapter(max_retries=retries))
 
     # handle certificate bundle
-    stac_api_io.session.verify = "/etc/ssl/certs/ca-certificates.crt" #”Settings.STAC_API_IO_CA_BUNDLE
+    stac_api_io.session.verify = os.environ.get('CURL_CA_BUNDLE') #"/etc/ssl/certs/ca-certificates.crt" #Settings.STAC_API_IO_CA_BUNDLE #
 
     # setup the client
     cat = Client.from_file(Settings.STAC_BACKEND.URL, stac_io=stac_api_io)
