@@ -369,7 +369,7 @@ class Mapper:
         if self._geoms_are_points:
             feature_wgs84 = self.mapper_configs.feature.to_epsg(4326)
             # Create a buffer around the point in degrees
-            buffer_distance_degrees = 0.01
+            buffer_distance_degrees = 0.0001
             buffered_point = feature_wgs84.geometry.buffer(buffer_distance_degrees)
             bbox = box(*buffered_point.bounds)
             self._geoms_are_points = False # We want to load as a scene later
