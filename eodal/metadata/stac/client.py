@@ -73,6 +73,7 @@ def query_stac(
     # transform dates into the required format (%Y-%m-%d)
     datestr = f'{time_start.strftime("%Y-%m-%d")}/{time_end.strftime("%Y-%m-%d")}'
     # search datasets on catalog
+    print(bounding_box)
     search = cat.search(
         collections=collection,
         intersects=bounding_box,

@@ -360,11 +360,20 @@ class Mapper:
             "MultiPoint",
         ]
 
-        # determine bounding box of the feature using
-        # its representation in geographic coordinates (WGS84, EPSG: 4326)
-        feature_wgs84 = self.mapper_configs.feature.to_epsg(4326)
-        bbox = box(*feature_wgs84.geometry.bounds)
+        if not self._geoms_are_points:
+            # determine bounding box of the feature using
+            # its representation in geographic coordinates (WGS84, EPSG: 4326)
+            feature_wgs84 = self.mapper_configs.feature.to_epsg(4326)
+            bbox = box(*feature_wgs84.geometry.bounds)
 
+        if self._geoms_are_points:
+            feature_wgs84 = self.mapper_configs.feature.to_epsg(4326)
+            # Create a buffer around the point in degrees
+            buffer_distance_degrees = 0.01
+            buffered_point = feature_wgs84.geometry.buffer(buffer_distance_degrees)
+            bbox = box(*buffered_point.bounds)
+            self._geoms_are_points = False # We want to load as a scene later
+        
         # determine platform and collection
         platform = self.mapper_configs.platform
         collection = self.mapper_configs.collection
@@ -903,6 +912,7 @@ class Mapper:
         if self._geoms_are_points:
             self._load_pixels(**pixel_kwargs)
         else:
+            print(round_time_stamps_to_freq)
             self._load_scenes_collection(
                 round_time_stamps_to_freq=round_time_stamps_to_freq,
                 **scene_kwargs
