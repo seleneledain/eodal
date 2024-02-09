@@ -137,6 +137,22 @@ class SpectralIndices(object):
         ndvi = (nir - red) / (nir + red)
         return ndvi
 
+    def NBR2(self, collection) -> np.array:
+        """
+        Calculates the Normalised Burned Ratio
+        (NBR2) using the SWIR bands.
+
+        :param collection:
+            reflectance in the 'red' and 'nir_1' channel
+        :returns:
+            NBR2 values
+        """
+
+        swirS = collection.get(self.swir_1).values.astype("float")
+        swirL = collection.get(self.swir_2).values.astype("float")
+        nbr = (swirS - swirL) / (swirS + swirL)
+        return nbr
+
     def EVI(self, collection):
         """
         Calculates the Enhanced Vegetation Index (EVI) following the formula
