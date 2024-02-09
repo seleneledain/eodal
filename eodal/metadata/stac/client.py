@@ -90,7 +90,7 @@ def query_stac(
 
 def _filter_criteria_fulfilled(
     metadata_dict: Dict[str, Any], metadata_filters: List[Filter]
-) -> bool:
+    ) -> bool:
     """
     Check if a scene fulfills the metadata filter criteria
 
@@ -202,7 +202,7 @@ def sentinel2(metadata_filters: List[Filter], **kwargs) -> gpd.GeoDataFrame:
             "tile_id": tile_id,
             "sensing_date": datetime_to_date(props[s2.sensing_time]),
             "cloudy_pixel_percentage": props[s2.cloud_cover],
-            "epsg": props[s2.epsg],
+            "epsg": 4326, #props[s2.epsg], #
             "sensing_time": datetime.strptime(
                 props[s2.sensing_time], s2.sensing_time_fmt
             ),

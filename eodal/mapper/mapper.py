@@ -38,6 +38,8 @@ from pathlib import Path
 from sqlalchemy.exc import DatabaseError
 from rasterio import Affine
 from shapely.geometry import box
+from shapely.ops import transform
+import pyproj
 from typing import Any, Callable, Dict, List, Optional
 
 from eodal.config import get_settings
@@ -49,6 +51,7 @@ from eodal.mapper.filter import Filter
 from eodal.metadata.database.querying import find_raw_data_by_bbox
 from eodal.metadata.utils import reconstruct_path
 from eodal.utils.exceptions import STACError
+from eodal.utils.reprojection import infer_utm_zone
 
 settings = get_settings()
 logger = settings.logger
@@ -357,23 +360,26 @@ class Mapper:
         # check for point geometries
         self._geoms_are_points = self.mapper_configs.feature.geometry.geom_type in [
             "Point",
-            "MultiPoint",
+            #"MultiPoint",
         ]
 
         if not self._geoms_are_points:
-            # determine bounding box of the feature using
+            # determine bounding box of the feature using (if multipoint, treat total bounds as bbox TO FIX when loading)
             # its representation in geographic coordinates (WGS84, EPSG: 4326)
             feature_wgs84 = self.mapper_configs.feature.to_epsg(4326)
             bbox = box(*feature_wgs84.geometry.bounds)
 
         if self._geoms_are_points:
-            feature_wgs84 = self.mapper_configs.feature.to_epsg(4326)
-            # Create a buffer around the point in degrees
-            buffer_distance_degrees = 0.0001
-            buffered_point = feature_wgs84.geometry.buffer(buffer_distance_degrees)
-            bbox = box(*buffered_point.bounds)
-            self._geoms_are_points = False # We want to load as a scene later
-        
+            feature_wgs84 = self.mapper_configs.feature.to_epsg(3857) # to metric
+            # Create a box of 10m resolution around point
+            resolution = 10
+            bbox = box(feature_wgs84.geometry.x - resolution/2, feature_wgs84.geometry.y - resolution/2,
+                     feature_wgs84.geometry.x + resolution/2, feature_wgs84.geometry.y + resolution/2)
+            # Project back to EPSG 4326
+            projector = pyproj.Transformer.from_crs('EPSG:3857', 'EPSG:4326', always_xy=True).transform
+            bbox = transform(projector, bbox)      
+            self._geoms_are_points = False # We can now consider as a poly
+
         # determine platform and collection
         platform = self.mapper_configs.platform
         collection = self.mapper_configs.collection
@@ -618,7 +624,7 @@ class Mapper:
                 }
                 scene = merge_datasets(
                     datasets=dataset_list,
-                    target_crs=self.metadata.target_epsg.unique()[0],
+                    target_crs=infer_utm_zone(self.mapper_configs.feature.bounds), #self.metadata.target_epsg.unique()[0],
                     vector_features=self.mapper_configs.feature.to_geoseries(),
                     sensor=self.sensor,
                     band_options=band_options
