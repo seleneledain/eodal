@@ -622,9 +622,10 @@ class Mapper:
                     "band_names": _scene.band_names,
                     "band_aliases": _scene.band_aliases
                 }
+
                 scene = merge_datasets(
                     datasets=dataset_list,
-                    target_crs=infer_utm_zone(self.mapper_configs.feature.bounds), #self.metadata.target_epsg.unique()[0],
+                    target_crs=self.metadata.target_epsg.unique()[0], #infer_utm_zone(self.mapper_configs.feature.geometry), #
                     vector_features=self.mapper_configs.feature.to_geoseries(),
                     sensor=self.sensor,
                     band_options=band_options
@@ -918,7 +919,6 @@ class Mapper:
         if self._geoms_are_points:
             self._load_pixels(**pixel_kwargs)
         else:
-            print(round_time_stamps_to_freq)
             self._load_scenes_collection(
                 round_time_stamps_to_freq=round_time_stamps_to_freq,
                 **scene_kwargs
